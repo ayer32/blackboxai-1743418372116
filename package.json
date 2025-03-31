@@ -1,0 +1,19 @@
+{
+  "name": "cricket-tournament-manager",
+  "version": "1.0.0",
+  "description": "A comprehensive Cricket Tournament Management System",
+  "scripts": {
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install": "npm run install-server && npm run install-client",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "keywords": ["cricket", "tournament", "management"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.0.1"
+  }
+}
