@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matches - Cricket Tournament Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-indigo-700 text-white">
+        <div class="flex items-center justify-center h-16 bg-indigo-800">
+            <i class="fas fa-cricket text-2xl mr-2"></i>
+            <span class="font-bold text-xl">Cricket Manager</span>
+        </div>
+        <nav class="mt-5">
+            <a href="dashboard.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-tachometer-alt mr-3"></i>
+                Dashboard
+            </a>
+            <a href="tournaments.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-trophy mr-3"></i>
+                Tournaments
+            </a>
+            <a href="teams.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-users mr-3"></i>
+                Teams
+            </a>
+            <a href="players.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-running mr-3"></i>
+                Players
+            </a>
+            <a href="matches.html" class="flex items-center px-6 py-3 bg-indigo-600">
+                <i class="fas fa-baseball-ball mr-3"></i>
+                Matches
+            </a>
+            <a href="statistics.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-chart-bar mr-3"></i>
+                Statistics
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800">Matches</h1>
+            <button id="scheduleMatchBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500">
+                Schedule Match
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Tournament</label>
+                    <select id="tournamentFilter" class="w-full border rounded-md px-3 py-2">
+                        <option value="">All Tournaments</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                    <select id="statusFilter" class="w-full border rounded-md px-3 py-2">
+                        <option value="">All</option>
+                        <option value="Scheduled">Scheduled</option>
+                        <option value="In Progress">In Progress</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                    <input type="date" id="dateFilter" class="w-full border rounded-md px-3 py-2">
+                </div>
+                <div class="flex items-end">
+                    <button id="applyFilters" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Live Matches -->
+        <div class="mb-8">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Live Matches</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="liveMatches">
+                <!-- Live match cards will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Upcoming Matches -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Upcoming Matches</h2>
+            </div>
+            <div class="divide-y divide-gray-200" id="upcomingMatches">
+                <!-- Upcoming match rows will be dynamically added here -->
+            </div>
+        </div>
+
+        <!-- Recent Results -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-800">Recent Results</h2>
+            </div>
+            <div class="divide-y divide-gray-200" id="recentResults">
+                <!-- Recent results will be dynamically added here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Match Modal -->
+    <div id="scheduleMatchModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-2/3 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Schedule New Match</h3>
+                <button class="text-gray-400 hover:text-gray-500" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="scheduleMatchForm" class="space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tournament</label>
+                        <select name="tournament" required class="w-full border rounded-md px-3 py-2">
+                            <option value="">Select Tournament</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Match Type</label>
+                        <select name="matchType" required class="w-full border rounded-md px-3 py-2">
+                            <option value="League">League Match</option>
+                            <option value="Quarter Final">Quarter Final</option>
+                            <option value="Semi Final">Semi Final</option>
+                            <option value="Final">Final</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Team 1</label>
+                        <select name="team1" required class="w-full border rounded-md px-3 py-2">
+                            <option value="">Select Team</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Team 2</label>
+                        <select name="team2" required class="w-full border rounded-md px-3 py-2">
+                            <option value="">Select Team</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                        <input type="date" name="startDate" required class="w-full border rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Time</label>
+                        <input type="time" name="startTime" required class="w-full border rounded-md px-3 py-2">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Venue</label>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <input type="text" name="ground" placeholder="Ground Name" required
+                                   class="w-full border rounded-md px-3 py-2">
+                        </div>
+                        <div>
+                            <input type="text" name="city" placeholder="City" required
+                                   class="w-full border rounded-md px-3 py-2">
+                        </div>
+                        <div>
+                            <input type="text" name="country" placeholder="Country" required
+                                   class="w-full border rounded-md px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Match Officials</label>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <input type="text" name="umpire1" placeholder="Main Umpire" required
+                                   class="w-full border rounded-md px-3 py-2">
+                        </div>
+                        <div>
+                            <input type="text" name="umpire2" placeholder="TV Umpire" required
+                                   class="w-full border rounded-md px-3 py-2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeModal()"
+                            class="px-4 py-2 border text-gray-700 rounded-md hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500">
+                        Schedule Match
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Check authentication
+        if (!window.auth.isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('scheduleMatchModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('scheduleMatchModal').classList.add('hidden');
+        }
+
+        // Event Listeners
+        document.getElementById('scheduleMatchBtn').addEventListener('click', openModal);
+
+        // Handle form submission
+        document.getElementById('scheduleMatchForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const matchData = {
+                tournament: formData.get('tournament'),
+                matchType: formData.get('matchType'),
+                teams: {
+                    team1: formData.get('team1'),
+                    team2: formData.get('team2')
+                },
+                schedule: {
+                    startDate: new Date(`${formData.get('startDate')}T${formData.get('startTime')}`)
+                },
+                venue: {
+                    ground: formData.get('ground'),
+                    city: formData.get('city'),
+                    country: formData.get('country')
+                },
+                umpires: [
+                    { name: formData.get('umpire1'), role: 'Main' },
+                    { name: formData.get('umpire2'), role: 'TV' }
+                ]
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:5000/api/matches', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(matchData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to schedule match');
+                }
+
+                closeModal();
+                fetchMatches();
+            } catch (error) {
+                console.error('Failed to schedule match:', error);
+                alert('Failed to schedule match. Please try again.');
+            }
+        });
+
+        // Fetch and display matches
+        async function fetchMatches() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:5000/api/matches', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const matches = await response.json();
+                
+                // Update live matches
+                const liveMatches = document.getElementById('liveMatches');
+                liveMatches.innerHTML = matches
+                    .filter(match => match.status === 'In Progress')
+                    .map(match => `
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-sm text-red-600 font-semibold">LIVE</span>
+                                <span class="text-sm text-gray-500">${match.matchType}</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <span class="font-semibold">${match.teams.team1.name}</span>
+                                        <span class="ml-2">${match.innings[0]?.totalRuns || 0}/${match.innings[0]?.wickets || 0}</span>
+                                    </div>
+                                    <span class="text-sm text-gray-500">(${match.innings[0]?.overs || 0} ov)</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <div class="flex items-center">
+                                        <span class="font-semibold">${match.teams.team2.name}</span>
+                                        <span class="ml-2">${match.innings[1]?.totalRuns || 0}/${match.innings[1]?.wickets || 0}</span>
+                                    </div>
+                                    <span class="text-sm text-gray-500">(${match.innings[1]?.overs || 0} ov)</span>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">View Scorecard</a>
+                            </div>
+                        </div>
+                    `).join('');
+
+                // Update upcoming matches
+                const upcomingMatches = document.getElementById('upcomingMatches');
+                upcomingMatches.innerHTML = matches
+                    .filter(match => match.status === 'Scheduled')
+                    .map(match => `
+                        <div class="px-6 py-4 flex items-center justify-between">
+                            <div>
+                                <div class="text-sm text-gray-500">${new Date(match.schedule.startDate).toLocaleDateString()}</div>
+                                <div class="mt-1">${match.teams.team1.name} vs ${match.teams.team2.name}</div>
+                                <div class="text-sm text-gray-500">${match.venue.ground}, ${match.venue.city}</div>
+                            </div>
+                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Start Match</a>
+                        </div>
+                    `).join('');
+
+                // Update recent results
+                const recentResults = document.getElementById('recentResults');
+                recentResults.innerHTML = matches
+                    .filter(match => match.status === 'Completed')
+                    .map(match => `
+                        <div class="px-6 py-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="text-sm text-gray-500">${new Date(match.schedule.startDate).toLocaleDateString()}</div>
+                                    <div class="mt-1">${match.teams.team1.name} ${match.innings[0]?.totalRuns}/${match.innings[0]?.wickets}</div>
+                                    <div class="mt-1">${match.teams.team2.name} ${match.innings[1]?.totalRuns}/${match.innings[1]?.wickets}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-sm font-semibold text-gray-900">${match.result.description}</div>
+                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">View Scorecard</a>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+            } catch (error) {
+                console.error('Failed to fetch matches:', error);
+            }
+        }
+
+        // Initial fetch
+        fetchMatches();
+
+        // Fetch tournaments and teams for form
+        async function fetchTournamentsAndTeams() {
+            try {
+                const token = localStorage.getItem('token');
+                const [tournamentsResponse, teamsResponse] = await Promise.all([
+                    fetch('http://localhost:5000/api/tournaments', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetch('http://localhost:5000/api/teams', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                ]);
+
+                const tournaments = await tournamentsResponse.json();
+                const teams = await teamsResponse.json();
+
+                // Populate tournament selects
+                const tournamentOptions = tournaments.map(tournament => 
+                    `<option value="${tournament._id}">${tournament.name}</option>`
+                ).join('');
+                document.querySelector('select[name="tournament"]').innerHTML += tournamentOptions;
+                document.getElementById('tournamentFilter').innerHTML += tournamentOptions;
+
+                // Populate team selects
+                const teamOptions = teams.map(team => 
+                    `<option value="${team._id}">${team.name}</option>`
+                ).join('');
+                document.querySelector('select[name="team1"]').innerHTML += teamOptions;
+                document.querySelector('select[name="team2"]').innerHTML += teamOptions;
+            } catch (error) {
+                console.error('Failed to fetch tournaments and teams:', error);
+            }
+        }
+
+        // Initial tournaments and teams fetch
+        fetchTournamentsAndTeams();
+
+        // Filter functionality
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            const tournament = document.getElementById('tournamentFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const date = document.getElementById('dateFilter').value;
+            
+            fetchMatches({ tournament, status, date });
+        });
+    </script>
+</body>
+</html>
