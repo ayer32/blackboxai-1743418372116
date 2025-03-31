@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Players - Cricket Tournament Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <div class="fixed inset-y-0 left-0 w-64 bg-indigo-700 text-white">
+        <div class="flex items-center justify-center h-16 bg-indigo-800">
+            <i class="fas fa-cricket text-2xl mr-2"></i>
+            <span class="font-bold text-xl">Cricket Manager</span>
+        </div>
+        <nav class="mt-5">
+            <a href="dashboard.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-tachometer-alt mr-3"></i>
+                Dashboard
+            </a>
+            <a href="tournaments.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-trophy mr-3"></i>
+                Tournaments
+            </a>
+            <a href="teams.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-users mr-3"></i>
+                Teams
+            </a>
+            <a href="players.html" class="flex items-center px-6 py-3 bg-indigo-600">
+                <i class="fas fa-running mr-3"></i>
+                Players
+            </a>
+            <a href="matches.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-baseball-ball mr-3"></i>
+                Matches
+            </a>
+            <a href="statistics.html" class="flex items-center px-6 py-3 text-white hover:bg-indigo-600">
+                <i class="fas fa-chart-bar mr-3"></i>
+                Statistics
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="ml-64 p-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-800">Players</h1>
+            <button id="createPlayerBtn" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500">
+                Add Player
+            </button>
+        </div>
+
+        <!-- Search and Filter -->
+        <div class="bg-white rounded-lg shadow p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search Players</label>
+                    <input type="text" id="searchPlayer" placeholder="Search by name..."
+                           class="w-full border rounded-md px-3 py-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Team</label>
+                    <select id="teamFilter" class="w-full border rounded-md px-3 py-2">
+                        <option value="">All Teams</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Player Type</label>
+                    <select id="playerTypeFilter" class="w-full border rounded-md px-3 py-2">
+                        <option value="">All Types</option>
+                        <option value="Batsman">Batsman</option>
+                        <option value="Bowler">Bowler</option>
+                        <option value="All-Rounder">All-Rounder</option>
+                        <option value="Wicket-Keeper">Wicket-Keeper</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button id="applyFilters" class="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200">
+                        Apply Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Players Table -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Player</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Team</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Batting Stats</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bowling Stats</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="playersList" class="bg-white divide-y divide-gray-200">
+                    <!-- Player rows will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Player Modal -->
+    <div id="createPlayerModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-2/3 shadow-lg rounded-md bg-white">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900">Add New Player</h3>
+                <button class="text-gray-400 hover:text-gray-500" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="createPlayerForm" class="space-y-6">
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" name="name" required class="w-full border rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                        <input type="date" name="dateOfBirth" required class="w-full border rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Player Type</label>
+                        <select name="playerType" required class="w-full border rounded-md px-3 py-2">
+                            <option value="Batsman">Batsman</option>
+                            <option value="Bowler">Bowler</option>
+                            <option value="All-Rounder">All-Rounder</option>
+                            <option value="Wicket-Keeper">Wicket-Keeper</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Team</label>
+                        <select name="team" required class="w-full border rounded-md px-3 py-2">
+                            <option value="">Select Team</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Jersey Number</label>
+                        <input type="number" name="jerseyNumber" required min="0" class="w-full border rounded-md px-3 py-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Batting Style</label>
+                        <select name="battingStyle" required class="w-full border rounded-md px-3 py-2">
+                            <option value="Right Handed">Right Handed</option>
+                            <option value="Left Handed">Left Handed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Bowling Style</label>
+                    <select name="bowlingStyle" class="w-full border rounded-md px-3 py-2">
+                        <option value="None">None</option>
+                        <option value="Right Arm Fast">Right Arm Fast</option>
+                        <option value="Right Arm Medium">Right Arm Medium</option>
+                        <option value="Right Arm Off-Spin">Right Arm Off-Spin</option>
+                        <option value="Left Arm Fast">Left Arm Fast</option>
+                        <option value="Left Arm Medium">Left Arm Medium</option>
+                        <option value="Left Arm Spin">Left Arm Spin</option>
+                    </select>
+                </div>
+
+                <div>
+                    <h4 class="text-md font-medium text-gray-900 mb-4">Contact Information</h4>
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <input type="email" name="email" class="w-full border rounded-md px-3 py-2">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                            <input type="tel" name="phone" class="w-full border rounded-md px-3 py-2">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                            <textarea name="address" rows="2" class="w-full border rounded-md px-3 py-2"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeModal()"
+                            class="px-4 py-2 border text-gray-700 rounded-md hover:bg-gray-50">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-500">
+                        Add Player
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script>
+        // Check authentication
+        if (!window.auth.isAuthenticated()) {
+            window.location.href = 'index.html';
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('createPlayerModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('createPlayerModal').classList.add('hidden');
+        }
+
+        // Event Listeners
+        document.getElementById('createPlayerBtn').addEventListener('click', openModal);
+
+        // Handle form submission
+        document.getElementById('createPlayerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const playerData = {
+                name: formData.get('name'),
+                dateOfBirth: formData.get('dateOfBirth'),
+                playerType: formData.get('playerType'),
+                team: formData.get('team'),
+                jerseyNumber: parseInt(formData.get('jerseyNumber')),
+                battingStyle: formData.get('battingStyle'),
+                bowlingStyle: formData.get('bowlingStyle'),
+                contactInfo: {
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    address: formData.get('address')
+                }
+            };
+
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:5000/api/players', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(playerData)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create player');
+                }
+
+                closeModal();
+                fetchPlayers();
+            } catch (error) {
+                console.error('Failed to create player:', error);
+                alert('Failed to create player. Please try again.');
+            }
+        });
+
+        // Fetch and display players
+        async function fetchPlayers() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:5000/api/players', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const players = await response.json();
+                
+                const playersList = document.getElementById('playersList');
+                playersList.innerHTML = players.map(player => `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">${player.name}</div>
+                                    <div class="text-sm text-gray-500">#${player.jerseyNumber}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm text-gray-900">${player.team?.name || 'No Team'}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                ${player.playerType}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div>Runs: ${player.stats.batting.runs}</div>
+                            <div>Avg: ${player.stats.batting.average}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <div>Wickets: ${player.stats.bowling.wickets}</div>
+                            <div>Econ: ${player.stats.bowling.economy}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="#" class="text-indigo-600 hover:text-indigo-900 mr-3">View Stats</a>
+                            <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to fetch players:', error);
+            }
+        }
+
+        // Initial fetch
+        fetchPlayers();
+
+        // Fetch teams for filters and form
+        async function fetchTeams() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:5000/api/teams', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const teams = await response.json();
+                
+                const teamOptions = teams.map(team => 
+                    `<option value="${team._id}">${team.name}</option>`
+                ).join('');
+                
+                document.querySelector('select[name="team"]').innerHTML += teamOptions;
+                document.getElementById('teamFilter').innerHTML += teamOptions;
+            } catch (error) {
+                console.error('Failed to fetch teams:', error);
+            }
+        }
+
+        // Initial teams fetch
+        fetchTeams();
+
+        // Search functionality
+        let searchTimeout;
+        document.getElementById('searchPlayer').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                const searchTerm = e.target.value;
+                fetchPlayers({ search: searchTerm });
+            }, 300);
+        });
+
+        // Filter functionality
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            const team = document.getElementById('teamFilter').value;
+            const playerType = document.getElementById('playerTypeFilter').value;
+            fetchPlayers({ team, playerType });
+        });
+    </script>
+</body>
+</html>
